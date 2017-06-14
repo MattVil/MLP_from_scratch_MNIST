@@ -110,7 +110,9 @@ void affiche_img(image *rt){
       
      }
     printf("\n");
-    printf("-----------label : %d-------\n",rt->label);
+    printf("\t-------------\n");
+    printf("\t|     %d     |\n", rt->label);
+    printf("\t-------------\n");
 }
 
 
