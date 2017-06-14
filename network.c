@@ -81,7 +81,6 @@ Network build_neural_network(){
 		matrix.output = &(network.tab_layor[j+1]);
 		matrix.size_out = network.tab_layor[j+1].nb_neuron;
 
-
 		matrix.weight = malloc(matrix.size_in*sizeof(double));
 		if(matrix.weight == NULL)
 			exit(1);
@@ -93,11 +92,11 @@ Network build_neural_network(){
 		int n, m;
 		for(n=0; n<matrix.size_in; n++){
 			for(m=0; m<matrix.size_out; m++){
-				matrix.weight[n][m] = rand();
+				matrix.weight[n][m] = (double)rand() /(double)RAND_MAX;
 			}
 		}
 
-		network.tab_weight_matrix[i] = matrix;
+		network.tab_weight_matrix[j] = matrix;
 		printf("\tWeight matrix %d created !\n", j);
 	}
 

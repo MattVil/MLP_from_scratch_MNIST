@@ -12,7 +12,7 @@ int main(int argc, char const *argv[])
 
 		for(i=0; i<network.tab_weight_matrix[k].size_in; i++){
 			for(j=0; j<network.tab_weight_matrix[k].size_out; j++){
-				printf("%lf ", network.tab_weight_matrix[k].weight[i][j]);
+				printf("%.2f ", network.tab_weight_matrix[k].weight[i][j]);
 			}
 			printf("\n");
 		}
