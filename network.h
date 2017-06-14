@@ -5,8 +5,8 @@
 
 #define NB_LAYOR 5
 
-#define NB_NEURON_INPUT 5
-#define NB_NEURON_HIDDEN 7
+#define NB_NEURON_INPUT 4
+#define NB_NEURON_HIDDEN 6
 #define NB_NEURON_OUTPUT 3
 
 typedef struct neuron
@@ -42,3 +42,4 @@ typedef struct network
 
 
 Network build_neural_network();
+void print_weight(Network network);

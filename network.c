@@ -104,3 +104,20 @@ Network build_neural_network(){
 
 	return network;
 }
+
+void print_network_weight(Network network){
+	int k, i, j;
+	for(k=0; k<NB_LAYOR-1; k++){
+		printf("\n---------------------------------------------------------------\n");
+		printf("Layor n°%d : %dx%d\n", k, network.tab_weight_matrix[k].size_in, network.tab_weight_matrix[k].size_out);
+		printf("---------------------------------------------------------------\n");
+
+		for(i=0; i<network.tab_weight_matrix[k].size_in; i++){
+			for(j=0; j<network.tab_weight_matrix[k].size_out; j++){
+				printf("%.2f ", network.tab_weight_matrix[k].weight[i][j]);
+			}
+			printf("\n");
+		}
+		printf("\n\n");
+	}
+}
