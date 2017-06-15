@@ -42,13 +42,17 @@ void close_source_files(){
 /*------------handling MNIST Files-----------------------*/
 
 
-void open_source_files(){
+int open_source_files(){
     int magic_label,magic_train; /*magic numbers*/
     int nb_items; /*label set*/
     int nb_images,nb_rows,nb_columns; /* number of images of the training set 60000*/
     int size_image; /*image size, should be 28*/
     int temp,lu;
     
+    printf("\n---------------------------------------------------------------\n");
+    printf("                  Training database openning ...                 \n");
+
+
     fd1=open("./database/train-images.idx3-ubyte", O_RDONLY );
     fd2=open("./database/train-labels.idx1-ubyte", O_RDONLY );
     
@@ -68,13 +72,17 @@ void open_source_files(){
     printf("nb images : %d\n",nb_items);
     printf("nb rows : %d\n",nb_rows);
     printf("lu : %d nb columns : %d\n",lu, nb_columns);
+    printf("\nDONE !\n");
+    printf("---------------------------------------------------------------\n");
+
+    return nb_items;
 }
 
 
 
 
 
-void read_input_number(int pos,image *ret){ /*read_one image, at position pos in the input file*/
+void read_input_number(int pos,Image *ret){ /*read_one image, at position pos in the input file*/
     int i;
     long int offset;
     
@@ -92,7 +100,7 @@ void read_input_number(int pos,image *ret){ /*read_one image, at position pos in
 }
     
     
-void affiche_img(image *rt){
+void affiche_img(Image *rt){
     int i;
     int chargl = '#';
     

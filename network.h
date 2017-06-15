@@ -1,17 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "load_mnist.h"
+
 #define ETA 1
 
 #define NB_LAYOR 5
 
-#define NB_NEURON_INPUT 4
-#define NB_NEURON_HIDDEN 6
-#define NB_NEURON_OUTPUT 3
+#define NB_NEURON_INPUT 784
+#define NB_NEURON_HIDDEN 500
+#define NB_NEURON_OUTPUT 10
 
 typedef struct neuron
 {
 	double value;
+	double out_signal;
 	double error_average;
 
 }Neuron;
@@ -42,4 +45,9 @@ typedef struct network
 
 
 Network build_neural_network();
-void print_weight(Network network);
+void print_network_weight(Network network);
+void train_network(Network* network, Image* img);
+void put_img_in_input(Network* network, Image* img);
+void compute_output(Network* network);
+void calcul_error(Network* network, Image img);
+double* convert_label(Image img);

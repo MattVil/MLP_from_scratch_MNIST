@@ -1,11 +1,16 @@
+#include <math.h>
 #include "network.h"
 
+/*
+This function build a neural network depending of the #define on network.h
+*/
 Network build_neural_network(){
 
 	if(NB_LAYOR < 2)
 		exit(0);
 
-	printf("\nStart building ...\n");
+	printf("\n---------------------------------------------------------------\n");
+	printf("                  Start building neural network ...              \n");
 
 	//network creation
 	Network network;
@@ -28,6 +33,7 @@ Network build_neural_network(){
 			for(i=0; i<NB_NEURON_INPUT; i++){
 				Neuron neuron;
 				neuron.value = 0;
+				neuron.out_signal = 0;
 				neuron.error_average = 0;
 
 				inputLayor.tab_neuron[i] = neuron;
@@ -44,6 +50,7 @@ Network build_neural_network(){
 			for(i=0; i<NB_NEURON_OUTPUT; i++){
 				Neuron neuron;
 				neuron.value = 0;
+				neuron.out_signal = 0;
 				neuron.error_average = 0;
 
 				outputLayor.tab_neuron[i] = neuron;
@@ -60,6 +67,7 @@ Network build_neural_network(){
 			for(i=0; i<NB_NEURON_HIDDEN; i++){
 				Neuron neuron;
 				neuron.value = 0;
+				neuron.out_signal = 0;
 				neuron.error_average = 0;
 
 				hiddenLayor.tab_neuron[i] = neuron;
@@ -92,7 +100,7 @@ Network build_neural_network(){
 		int n, m;
 		for(n=0; n<matrix.size_in; n++){
 			for(m=0; m<matrix.size_out; m++){
-				matrix.weight[n][m] = (double)rand() /(double)RAND_MAX;
+				matrix.weight[n][m] = ((double)rand() /(double)RAND_MAX)*2 -1;
 			}
 		}
 
@@ -100,16 +108,20 @@ Network build_neural_network(){
 		printf("\tWeight matrix %d created !\n", j);
 	}
 
-	printf("\nNetwork creation DONE !\n\n");
+	printf("\nNetwork creation DONE !\n");
+	printf("---------------------------------------------------------------\n");
 
 	return network;
 }
 
+/*
+This function print the weight matrix of the neural network
+*/
 void print_network_weight(Network network){
 	int k, i, j;
 	for(k=0; k<NB_LAYOR-1; k++){
 		printf("\n---------------------------------------------------------------\n");
-		printf("Layor n°%d : %dx%d\n", k, network.tab_weight_matrix[k].size_in, network.tab_weight_matrix[k].size_out);
+		printf("Weight matrix n°%d : %dx%d\n", k, network.tab_weight_matrix[k].size_in, network.tab_weight_matrix[k].size_out);
 		printf("---------------------------------------------------------------\n");
 
 		for(i=0; i<network.tab_weight_matrix[k].size_in; i++){
@@ -120,4 +132,95 @@ void print_network_weight(Network network){
 		}
 		printf("\n\n");
 	}
+}
+
+/*
+This function print the value of all the neurons in a layor
+*/
+void print_layor(Network network, int num_layor){
+
+	if(num_layor<=NB_LAYOR){
+		int i;
+		printf("\nLayor n°%d\n", num_layor); 
+		for(i=0; i<network.tab_layor[num_layor].nb_neuron; i++){
+			printf(" - %.2f", network.tab_layor[num_layor].tab_neuron[i].out_signal);
+		}
+		printf(" -\n");
+	}
+}
+
+void train_network(Network* network, Image* img){
+
+	put_img_in_input(network, img);
+	compute_output(network);	
+}
+
+/*
+This function put a image in input of the neural network
+*/
+void put_img_in_input(Network* network, Image* img){
+	int i;
+	for(i=0; i<NB_NEURON_INPUT; i++){
+		//we put each pixels normalized on the input layor 
+		network->tab_layor[0].tab_neuron[i].value = img->imgbuf[i]/255.0;
+		network->tab_layor[0].tab_neuron[i].out_signal = img->imgbuf[i]/255.0;
+	}
+}
+
+/*
+This function compute the values of the output layor using the weight matrix between the
+diffrent layor
+*/
+void compute_output(Network* network){
+
+	int k;
+
+	//for each layor except the first
+	for(k=1; k<NB_LAYOR; k++){
+		int nb_neuron = network->tab_layor[k].nb_neuron;
+		int i, j;
+		//we calcul the value of each neuron
+		for(i=0; i<nb_neuron; i++){
+			double summe = 0;
+			//we look at the previous layor and the weight matrix before to calcul the summe
+			for(j=0; j<network->tab_layor[k-1].nb_neuron; j++){
+				double value_previous_neuron = network->tab_layor[k-1].tab_neuron[j].out_signal;
+				double weight = network->tab_weight_matrix[k-1].weight[j][i];
+
+				summe += value_previous_neuron * weight;
+			}
+			network->tab_layor[k].tab_neuron[i].value = summe;
+
+			//we apply the logistic function f(x)=1/(1+e(-x)) to compute the out_signal
+			network->tab_layor[k].tab_neuron[i].out_signal = 1/(1+exp(-summe));
+		}
+	}
+}
+
+void calcul_error(Network* network, Image img){
+
+	double * expected_result = convert_label(img);
+	
+
+}
+
+
+/*
+This function convert the label of the image on a table of expected result for the network
+*/
+double* convert_label(Image img){
+
+	double* result;
+	result = malloc(NB_NEURON_OUTPUT*sizeof(double));
+
+	int i;
+
+	for(i=0; i<NB_NEURON_OUTPUT; i++){
+		if(i==img.label)
+			result[i] = 1.00;
+		else
+			result[i] = 0.00;
+	}
+
+	return result;
 }

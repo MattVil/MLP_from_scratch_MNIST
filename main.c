@@ -5,15 +5,29 @@
 
 int main(int argc, char const *argv[])
 {
+	int nb_img;
+	nb_img = open_source_files();
 	Network network = build_neural_network();
-	print_network_weight(network);
 
-	open_source_files();
 
-	image img;
-	
-	read_input_number(100, &img);
-	affiche_img(&img);
+	int i;
+	for(i=0; i<1; i++){
+		Image img;
+		read_input_number(i, &img);
+		printf("img n°%d\n", i);
+
+
+		train_network(&network, img);
+
+/*
+		int j;
+		for(j=0; j<NB_LAYOR; j++){
+			print_layor(network, j);
+		}*/
+
+
+		affiche_img(&img);
+	}
 
 	close_source_files();
 
