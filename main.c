@@ -9,6 +9,17 @@ int main(int argc, char const *argv[])
 	nb_img = open_source_files();
 	Network network = build_neural_network();
 
+	printf("Trainning ...");
+
+	FILE* file = NULL;
+	file = fopen("error_evolution.txt", "w");
+	if(file == NULL)
+		printf("ERROR : Can not open/create error_evolution.txt\n");
+
+
+
+
+
 
 	int i;
 	for(i=0; i<60000; i++){
@@ -17,8 +28,8 @@ int main(int argc, char const *argv[])
 		//printf("img n°%d\n", i);
 
 
-		train_network(&network, &img);
-
+		double error = train_network(&network, &img);
+		fprintf(file, "%f\n", error);
 		
 /*
 		int j;
@@ -29,7 +40,22 @@ int main(int argc, char const *argv[])
 
 		//affiche_img(&img);
 	}
+	printf(" Done !\n");
 
+	srand(time(NULL));
+	int nb = rand()%(50000-1) +1;
+	Image img2;
+	read_input_number(nb, &img2);
+
+	put_img_in_input(&network, &img2);
+	compute_output(&network);
+
+	printf("Image n°%d\n", nb);
+	affiche_img(&img2);
+
+	print_layor(network, NB_LAYOR-1);
+
+	fclose(file);
 	close_source_files();
 
 	/* code */
