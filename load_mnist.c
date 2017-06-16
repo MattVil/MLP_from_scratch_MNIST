@@ -9,7 +9,7 @@
 
 
 /* eurk, globals */
-int fd1,fd2;
+int fd1,fd2, ft1, ft2;
 
 
 /*----------little to big endian ----------------------*/
@@ -42,7 +42,7 @@ void close_source_files(){
 /*------------handling MNIST Files-----------------------*/
 
 
-int open_source_files(){
+int open_trainning_files(){
     int magic_label,magic_train; /*magic numbers*/
     int nb_items; /*label set*/
     int nb_images,nb_rows,nb_columns; /* number of images of the training set 60000*/
@@ -78,6 +78,42 @@ int open_source_files(){
     return nb_items;
 }
 
+int open_test_files(){
+    int magic_label,magic_train; /*magic numbers*/
+    int nb_items; /*label set*/
+    int nb_images,nb_rows,nb_columns; /* number of images of the training set 60000*/
+    int size_image; /*image size, should be 28*/
+    int temp,lu;
+    
+    printf("\n---------------------------------------------------------------\n");
+    printf("                  Test database openning ...                 \n");
+
+
+    ft1=open("./database/t10k-images.idx3-ubyte", O_RDONLY );
+    ft2=open("./database/t10k-labels.idx3-ubyte", O_RDONLY );
+    
+    int swaped;
+    
+    read(ft1,&temp,sizeof(int));
+    magic_train = swap_int32(temp);
+    read(ft1,&temp,sizeof(int));
+    nb_items = swap_int32(temp);
+    read(ft1,&temp,sizeof(int));
+    nb_rows = swap_int32(temp);
+    lu = read(ft1,&temp,sizeof(int));
+    nb_columns = swap_int32(temp);
+    
+    /* training set */
+    printf("magic number : %d\n",magic_train);
+    printf("nb images : %d\n",nb_items);
+    printf("nb rows : %d\n",nb_rows);
+    printf("lu : %d nb columns : %d\n",lu, nb_columns);
+    printf("\nDONE !\n");
+    printf("---------------------------------------------------------------\n");
+
+    return nb_items;
+}
+
 
 
 
@@ -97,6 +133,23 @@ void read_input_number(int pos,Image *ret){ /*read_one image, at position pos in
     offset = 2*4;
     offset+= pos;  /* one MNIST label is one bytes, we have to skip pos bytes before the good one */
     pread(fd2, &(ret->label), 1, offset); /*read the image*/
+}
+
+void read_input_number_test(int pos,Image *ret){ /*read_one image, at position pos in the input file*/
+    int i;
+    long int offset;
+    
+    /*for the training set image file*/
+    
+    offset=4*4; /*the file header : 4 32bits integers*/
+    
+    offset+=__SIZE_IMAGE*__SIZE_IMAGE*pos;  /* one MNIST image is 28x28 bytes, we have to skip pos images before the good one */
+    pread(ft1, ret->imgbuf, __SIZE_IMAGE*__SIZE_IMAGE, offset); /*read the image*/
+    
+    /*for the training set label file*/
+    offset = 2*4;
+    offset+= pos;  /* one MNIST label is one bytes, we have to skip pos bytes before the good one */
+    pread(ft2, &(ret->label), 1, offset); /*read the image*/
 }
     
     

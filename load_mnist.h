@@ -14,8 +14,10 @@ typedef struct Image{
 
 void endianness();
 void close_source_files();
-int open_source_files();
+int open_trainning_files();
+int open_test_files();
 void read_input_number(int pos,Image *ret); /*read_one image, at position pos in the input file*/
+void read_input_number_test(int pos,Image *ret);
 void affiche_img(Image *rt);
 
 

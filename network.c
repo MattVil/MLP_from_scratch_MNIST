@@ -300,3 +300,22 @@ double* convert_label(Image img){
 
 	return result;
 }
+
+
+/*
+This function convert the table in output of the network in a int result
+*/
+int convert_result(Network network){
+
+	int i, max = -1; 
+	double max_value = -10000000; //long min 
+
+	for(i=0; i<network.tab_layor[NB_LAYOR-1].nb_neuron; i++){
+		if(network.tab_layor[NB_LAYOR-1].tab_neuron[i].value > max_value){
+			max_value = network.tab_layor[NB_LAYOR-1].tab_neuron[i].value;
+			max = i;
+		}
+	}
+
+	return max;
+}

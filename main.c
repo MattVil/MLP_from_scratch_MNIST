@@ -6,10 +6,13 @@
 int main(int argc, char const *argv[])
 {
 	int nb_img;
-	nb_img = open_source_files();
-	Network network = build_neural_network();
+	nb_img = open_trainning_files();
 
-	printf("Trainning ...");
+	int nb_img_test;
+	nb_img_test = open_test_files();
+
+	
+	Network network = build_neural_network();
 
 	FILE* file = NULL;
 	file = fopen("error_evolution.txt", "w");
@@ -18,34 +21,30 @@ int main(int argc, char const *argv[])
 
 
 
-
-
-
+	printf("\n---------------------------------------------------------------\n");
+	printf("                   Trainning ....");
+	printf("\n");
+	
 	int i;
 	for(i=0; i<60000; i++){
 		Image img;
 		read_input_number(i, &img);
-		//printf("img n°%d\n", i);
-
 
 		double error = train_network(&network, &img);
 		fprintf(file, "%f\n", error);
 		
-/*
-		int j;
-		for(j=0; j<NB_LAYOR; j++){
-			print_layor(network, j);
-		}
-*/
-
-		//affiche_img(&img);
 	}
 	printf(" Done !\n");
+	printf("\n---------------------------------------------------------------\n");
+
+
+	printf("\n---------------------------------------------------------------\n");
+	printf("                  Test : ");
 
 	srand(time(NULL));
-	int nb = rand()%(50000-1) +1;
+	int nb = rand()%(10000-1) +1;
 	Image img2;
-	read_input_number(nb, &img2);
+	read_input_number_test(nb, &img2);
 
 	put_img_in_input(&network, &img2);
 	compute_output(&network);
@@ -53,7 +52,10 @@ int main(int argc, char const *argv[])
 	printf("Image n°%d\n", nb);
 	affiche_img(&img2);
 
-	print_layor(network, NB_LAYOR-1);
+	int network_value = convert_result(network);
+
+	printf("\nResult proposed by the network : %d\t", network_value);
+	printf("at %.2f%%\n", network.tab_layor[NB_LAYOR-1].tab_neuron[network_value].value * 100);
 
 	fclose(file);
 	close_source_files();

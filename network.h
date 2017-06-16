@@ -53,3 +53,4 @@ void put_img_in_input(Network* network, Image* img);
 void compute_output(Network* network);
 double calcul_error(Network* network, Image img);
 double* convert_label(Image img);
+int convert_result(Network network);
