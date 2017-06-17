@@ -42,7 +42,7 @@ void close_source_files(){
 /*------------handling MNIST Files-----------------------*/
 
 
-int open_trainning_files(){
+int open_training_files(){
     int magic_label,magic_train; /*magic numbers*/
     int nb_items; /*label set*/
     int nb_images,nb_rows,nb_columns; /* number of images of the training set 60000*/
@@ -90,7 +90,7 @@ int open_test_files(){
 
 
     ft1=open("./database/t10k-images.idx3-ubyte", O_RDONLY );
-    ft2=open("./database/t10k-labels.idx3-ubyte", O_RDONLY );
+    ft2=open("./database/t10k-labels.idx1-ubyte", O_RDONLY );
     
     int swaped;
     

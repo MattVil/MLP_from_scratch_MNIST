@@ -9,8 +9,8 @@ Network build_neural_network(){
 	if(NB_LAYOR < 2)
 		exit(0);
 
-	printf("\n---------------------------------------------------------------\n");
-	printf("                  Start building neural network ...              \n");
+	//printf("\n---------------------------------------------------------------\n");
+	//printf("                  Start building neural network ...              \n");
 
 	//network creation
 	Network network;
@@ -21,7 +21,7 @@ Network build_neural_network(){
 
 	int k;
 	//layors creation
-	printf("Layor creation :\n");
+	//printf("Layor creation :\n");
 	for(k=0; k<NB_LAYOR; k++){
 		//creation of the inputLayor
 		if(k == 0){
@@ -74,11 +74,11 @@ Network build_neural_network(){
 			}
 			network.tab_layor[k] = hiddenLayor;
 		}
-		printf("\tLayor %d created : %d\n", k, network.tab_layor[k].nb_neuron);
+		//printf("\tLayor %d created : %d\n", k, network.tab_layor[k].nb_neuron);
 	}
 
 	//creation of connexion matrix table
-	printf("Weight matrix creation :\n");
+	//printf("Weight matrix creation :\n");
 	int j;
 	srand(time(NULL));
 
@@ -105,11 +105,11 @@ Network build_neural_network(){
 		}
 
 		network.tab_weight_matrix[j] = matrix;
-		printf("\tWeight matrix %d created : %dx%d\n", j, network.tab_weight_matrix[j].size_in, network.tab_weight_matrix[j].size_out);
+		//printf("\tWeight matrix %d created : %dx%d\n", j, network.tab_weight_matrix[j].size_in, network.tab_weight_matrix[j].size_out);
 	}
 
-	printf("\nNetwork creation DONE !\n");
-	printf("---------------------------------------------------------------\n");
+	//printf("\nNetwork creation DONE !\n");
+	//printf("---------------------------------------------------------------\n");
 
 	return network;
 }
@@ -277,7 +277,7 @@ double calcul_error(Network* network, Image img){
 		}
 	}
 
-	return summe_error;
+	return summe_error*summe_error;
 }
 
 
@@ -318,4 +318,27 @@ int convert_result(Network network){
 	}
 
 	return max;
+}
+
+/*
+
+*/
+double test_for_data(Network* network, Image img){
+	
+	int i;
+	double summe_error = 0;
+
+	put_img_in_input(network, &img);
+	compute_output(network);
+	
+	double* expected_result = convert_label(img);
+
+	for(i=0; i<NB_NEURON_OUTPUT; i++){
+		//calcul of the error
+		double neuron_value = network->tab_layor[NB_LAYOR-1].tab_neuron[i].value;
+		double error = expected_result[i] - neuron_value;
+		summe_error += error;
+	}
+
+	return summe_error;
 }

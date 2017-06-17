@@ -8,7 +8,7 @@
 #define NB_LAYOR 5
 
 #define NB_NEURON_INPUT 784
-#define NB_NEURON_HIDDEN 25
+#define NB_NEURON_HIDDEN 50
 #define NB_NEURON_OUTPUT 10
 
 typedef struct neuron
@@ -54,3 +54,4 @@ void compute_output(Network* network);
 double calcul_error(Network* network, Image img);
 double* convert_label(Image img);
 int convert_result(Network network);
+double test_for_data(Network* network, Image img);

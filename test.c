@@ -15,10 +15,10 @@ int main(int argc, char const *argv[])
 
 	//file to save the error
 	FILE* file = NULL;
-	file = fopen("./test/error_evolution.txt", "w");
+	file = fopen("./test/error2.txt", "w");
 	if(file == NULL)
 		printf("ERROR : Can not open/create error_evolution.txt\n");
-
+	srand(time(NULL));
 
 	Network network = build_neural_network();
 
@@ -28,39 +28,27 @@ int main(int argc, char const *argv[])
 	printf("\n");
 	
 	int i, j;
-	for(i=0; i<60000; i++){
+	for(i=0; i<10000; i++){
 		Image img;
 		read_input_number(i, &img);
+		double summe = 0;
 
-		double error = train_network(&network, &img);
-		fprintf(file, "%f\n", error);
+		double e = train_network(&network, &img);
+
+		for(j=0; j<10; j++){
+			int nb = rand()%(10000-5000) +5000;
+			Image img2;
+			read_input_number_test(nb, &img2);
+			double error = test_for_data(&network, img2);
+
+			summe+=error;
+		}
+		fprintf(file, "%d %f\n", i, (summe/10)*(summe/10));
 		
 	}
 	printf(" Done !\n");
 	printf("\n---------------------------------------------------------------\n");
 
-
-	printf("\n---------------------------------------------------------------\n");
-	printf("                  Test : ");
-
-	srand(time(NULL));
-
-	for(j=0; j<10; j++){
-		int nb = rand()%(5000-1) +1;
-		Image img2;
-		read_input_number_test(nb, &img2);
-
-		put_img_in_input(&network, &img2);
-		compute_output(&network);
-
-		printf("Image n°%d\n", nb);
-		affiche_img(&img2);
-
-		int network_value = convert_result(network);
-
-		printf("\nResult proposed by the network : %d\t", network_value);
-		printf("at %.2f%%\n", network.tab_layor[NB_LAYOR-1].tab_neuron[network_value].value * 100);
-	}
 	fclose(file);
 	close_source_files();
 
