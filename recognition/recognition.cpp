@@ -13,6 +13,7 @@
 
 void draw_reclangle(IplImage* img);
 void extract_square(IplImage* img);
+uchar* image_to_array(IplImage* img);
  
 int main() {
   
@@ -33,6 +34,7 @@ int main() {
         cvMoveWindow("Center", 820, 380);
         cvMoveWindow("Camera", 100, 200);       
          
+         int y = 0;
         while(key != 'q' && key != 'Q') {        
             
             image = cvQueryFrame(capture);
@@ -70,6 +72,8 @@ void extract_square(IplImage* img){
 
     cvResize(center_gray, resized);
 
+    uchar* tab = image_to_array(resized);
+
     cvShowImage("Center", resized);
 
     cvReleaseImage(&img_center);
@@ -90,4 +94,24 @@ void draw_reclangle(IplImage* img){
 
         }
     }
+}
+
+uchar* image_to_array(IplImage* img){
+    int i, j, k=0;
+
+    int height = img->height;
+    int width = img->width;
+
+    uchar* tab = (uchar*)malloc(height*width*sizeof(uchar));
+
+    for(i=0; i<height; i++){
+        for(j=0; j<width; j++){
+            tab[k] = CV_IMAGE_ELEM(img, int, i, j);
+            //printf("%d ", tab[k]);
+        }
+        //printf("\n");
+    }
+
+    //printf("--------------------------------------------------------\n");
+    return tab;
 }
