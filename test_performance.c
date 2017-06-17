@@ -4,7 +4,7 @@
 #include "load_mnist.h"
 #include "network.h"
 
-#define NB_TEST 50
+#define NB_TEST 1
 #define ECHANTILLON 1000
 
 int main(int argc, char const *argv[])
@@ -26,9 +26,9 @@ int main(int argc, char const *argv[])
 
 	//file to test the resistance of the network
 	FILE* performance = NULL;
-	performance = fopen("./test/performance5x50.txt", "w");
+	performance = fopen("./test/performanceTrainMax.txt", "w");
 	if(performance == NULL)
-		printf("ERROR : Can not open/create performance5x50.txt\n");
+		printf("ERROR : Can not open/create performanceTrainMax.txt\n");
 
 
 	double moyenne = 0, temps_moyen = 0;
@@ -42,14 +42,16 @@ int main(int argc, char const *argv[])
 		printf("             %d : Training ....\n", k);
 		
 		gettimeofday(&tvBegin, NULL);
-		int i, j;
-		for(i=0; i<60000; i++){
-			Image img;
-			read_input_number(i, &img);
+		int i, j, z;
+		for(z=0; z<10; z++){
+			for(i=0; i<60000; i++){
+				Image img;
+				read_input_number(i, &img);
 
-			double error = train_network(&network, &img);
-			//fprintf(file, "%f\n", error);
-			
+				double error = train_network(&network, &img);
+				//fprintf(file, "%f\n", error);
+				
+			}
 		}
 		gettimeofday(&tvEnd, NULL);
 		double timeResult = (double) (tvEnd.tv_usec - tvBegin.tv_usec) / 1000000 + (double) (tvEnd.tv_sec - tvBegin.tv_sec);

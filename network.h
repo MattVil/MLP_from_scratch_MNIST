@@ -8,7 +8,7 @@
 #define NB_LAYOR 5
 
 #define NB_NEURON_INPUT 784
-#define NB_NEURON_HIDDEN 50
+#define NB_NEURON_HIDDEN 25
 #define NB_NEURON_OUTPUT 10
 
 typedef struct neuron
