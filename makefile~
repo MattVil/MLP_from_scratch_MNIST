@@ -1,4 +1,4 @@
-all: main test test_performance
+all: main test test_performance recognition
 
 main.o: main.c load_mnist.h
 	gcc -c main.c 
