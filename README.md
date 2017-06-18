@@ -1,1 +1,1 @@
-# Handwtritten_recognition_MNIST
+# Handwritten_recognition_MNIST
