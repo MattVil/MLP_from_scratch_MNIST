@@ -9,8 +9,8 @@ Network build_neural_network(){
 	if(NB_LAYOR < 2)
 		exit(0);
 
-	printf("\n---------------------------------------------------------------\n");
-	printf("                  Start building neural network ...              \n");
+	//printf("\n---------------------------------------------------------------\n");
+	//printf("                  Start building neural network ...              \n");
 
 	//network creation
 	Network network;
@@ -21,7 +21,7 @@ Network build_neural_network(){
 
 	int k;
 	//layors creation
-	printf("Layor creation :\n");
+	//printf("Layor creation :\n");
 	for(k=0; k<NB_LAYOR; k++){
 		//creation of the inputLayor
 		if(k == 0){
@@ -74,11 +74,11 @@ Network build_neural_network(){
 			}
 			network.tab_layor[k] = hiddenLayor;
 		}
-		printf("\tLayor %d created : %d\n", k, network.tab_layor[k].nb_neuron);
+		//printf("\tLayor %d created : %d\n", k, network.tab_layor[k].nb_neuron);
 	}
 
 	//creation of connexion matrix table
-	printf("Weight matrix creation :\n");
+	//printf("Weight matrix creation :\n");
 	int j;
 	srand(time(NULL));
 
@@ -105,70 +105,13 @@ Network build_neural_network(){
 		}
 
 		network.tab_weight_matrix[j] = matrix;
-		printf("\tWeight matrix %d created : %dx%d\n", j, network.tab_weight_matrix[j].size_in, network.tab_weight_matrix[j].size_out);
+		//printf("\tWeight matrix %d created : %dx%d\n", j, network.tab_weight_matrix[j].size_in, network.tab_weight_matrix[j].size_out);
 	}
 
-	printf("\nNetwork creation DONE !\n");
-	printf("---------------------------------------------------------------\n");
+	//printf("\nNetwork creation DONE !\n");
+	//printf("---------------------------------------------------------------\n");
 
 	return network;
-}
-
-/*
-This function print the weight matrix of the neural network
-*/
-void print_network_weight(Network network){
-	int k, i, j;
-	for(k=0; k<NB_LAYOR-1; k++){
-		printf("\n---------------------------------------------------------------\n");
-		printf("Weight matrix n°%d : %dx%d\n", k, network.tab_weight_matrix[k].size_in, network.tab_weight_matrix[k].size_out);
-		printf("---------------------------------------------------------------\n");
-
-		for(i=0; i<network.tab_weight_matrix[k].size_in; i++){
-			for(j=0; j<network.tab_weight_matrix[k].size_out; j++){
-				printf("%.2f ", network.tab_weight_matrix[k].weight[i][j]);
-			}
-			printf("\n");
-		}
-		printf("\n\n");
-	}
-}
-
-
-/*
-This function print a selected weight matrix
-*/
-void print_weight_matrix(Network network, int num_matrix){
-	
-	if(num_matrix>=0 && num_matrix<NB_LAYOR){
-		int i, j;
-		printf("\n---------------------------------------------------------------\n");
-		printf("Weight matrix n°%d : %dx%d\n", num_matrix, network.tab_weight_matrix[num_matrix].size_in, network.tab_weight_matrix[num_matrix].size_out);
-		printf("---------------------------------------------------------------\n");
-
-		for(i=0; i<network.tab_weight_matrix[num_matrix].size_in; i++){
-			for(j=0; j<network.tab_weight_matrix[num_matrix].size_out; j++){
-				printf("%.2f ", network.tab_weight_matrix[num_matrix].weight[i][j]);
-			}
-			printf("\n");
-		}
-		printf("\n\n");
-	}
-}
-
-/*
-This function print the value of all the neurons in a layor
-*/
-void print_layor(Network network, int num_layor){
-
-	if(num_layor<=NB_LAYOR){
-		int i;
-		printf("\nLayor n°%d\n", num_layor); 
-		for(i=0; i<network.tab_layor[num_layor].nb_neuron; i++){
-			printf(" - %f", network.tab_layor[num_layor].tab_neuron[i].value);
-		}
-		printf(" -\n");
-	}
 }
 
 double train_network(Network* network, Image* img){
@@ -341,4 +284,65 @@ double test_for_data(Network* network, Image img){
 	}
 
 	return summe_error;
+}
+
+/*
+This function print the weight matrix of the neural network
+*/
+void print_network_weight(Network network){
+	int k, i, j;
+	for(k=0; k<NB_LAYOR-1; k++){
+		printf("\n---------------------------------------------------------------\n");
+		printf("Weight matrix n°%d : %dx%d\n", k, network.tab_weight_matrix[k].size_in, network.tab_weight_matrix[k].size_out);
+		printf("---------------------------------------------------------------\n");
+
+		for(i=0; i<network.tab_weight_matrix[k].size_in; i++){
+			for(j=0; j<network.tab_weight_matrix[k].size_out; j++){
+				printf("%.2f ", network.tab_weight_matrix[k].weight[i][j]);
+			}
+			printf("\n");
+		}
+		printf("\n\n");
+	}
+}
+
+
+/*
+This function print a selected weight matrix
+*/
+void print_weight_matrix(Network network, int num_matrix){
+	
+	if(num_matrix>=0 && num_matrix<NB_LAYOR){
+		int i, j;
+		printf("\n---------------------------------------------------------------\n");
+		printf("Weight matrix n°%d : %dx%d\n", num_matrix, network.tab_weight_matrix[num_matrix].size_in, network.tab_weight_matrix[num_matrix].size_out);
+		printf("---------------------------------------------------------------\n");
+
+		for(i=0; i<network.tab_weight_matrix[num_matrix].size_in; i++){
+			for(j=0; j<network.tab_weight_matrix[num_matrix].size_out; j++){
+				printf("%.2f ", network.tab_weight_matrix[num_matrix].weight[i][j]);
+			}
+			printf("\n");
+		}
+		printf("\n\n");
+	}
+}
+
+/*
+This function print the value of all the neurons in a layor
+*/
+void print_layor(Network network, int num_layor){
+
+	if(num_layor<=NB_LAYOR){
+		int i;
+		printf("\nLayor n°%d\n", num_layor); 
+		for(i=0; i<network.tab_layor[num_layor].nb_neuron; i++){
+			printf(" - %f", network.tab_layor[num_layor].tab_neuron[i].value);
+		}
+		printf(" -\n");
+	}
+}
+
+void print_neuron(Neuron neuron){
+	printf("Potential: %f\tSignal: %f\tError:%f\tError signal:%f\n", neuron.potential, neuron.value, neuron.error_average, neuron.error_signal);
 }

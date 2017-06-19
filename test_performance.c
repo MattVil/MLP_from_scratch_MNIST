@@ -4,7 +4,7 @@
 #include "load_mnist.h"
 #include "network.h"
 
-#define NB_TEST 1
+#define NB_TEST 10
 #define ECHANTILLON 1000
 
 int main(int argc, char const *argv[])
@@ -36,14 +36,18 @@ int main(int argc, char const *argv[])
 	struct timeval tvBegin, tvEnd;
 	for(k=0; k<NB_TEST; k++){
 		Network network = build_neural_network();
-
+		printf("Network : %d : ", network.nb_layor);
+		int u;
+		for(u=0; u<network.nb_layor; u++)
+			printf("%dx", network.tab_layor[u].nb_neuron);
+		printf(" ... training ...\n");
 
 		//printf("\n---------------------------------------------------------------\n");
-		printf("             %d : Training ....\n", k);
+		//printf("             %d : Training ....\n", k);
 		
 		gettimeofday(&tvBegin, NULL);
 		int i, j, z;
-		for(z=0; z<10; z++){
+		for(z=0; z<1; z++){
 			for(i=0; i<60000; i++){
 				Image img;
 				read_input_number(i, &img);

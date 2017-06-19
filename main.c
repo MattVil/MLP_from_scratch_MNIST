@@ -60,6 +60,12 @@ int main(int argc, char const *argv[])
 
 		printf("\nResult proposed by the network : %d\t", network_value);
 		printf("at %.2f%%\n", network.tab_layor[NB_LAYOR-1].tab_neuron[network_value].value * 100);
+
+		int k;
+		for(k=0; k<NB_NEURON_OUTPUT; k++){
+			printf("%d -> ", k);
+			print_neuron(network.tab_layor[NB_LAYOR-3].tab_neuron[k]);
+		}
 	}
 	fclose(file);
 	close_source_files();
