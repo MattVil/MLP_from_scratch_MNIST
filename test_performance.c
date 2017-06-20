@@ -36,7 +36,7 @@ int main(int argc, char const *argv[])
 	struct timeval tvBegin, tvEnd;
 	for(k=0; k<NB_TEST; k++){
 		Network network = build_neural_network();
-		printf("Network : %d : ", network.nb_layor);
+		printf("Network %d : nbL =%d : ", k, network.nb_layor);
 		int u;
 		for(u=0; u<network.nb_layor; u++)
 			printf("%dx", network.tab_layor[u].nb_neuron);

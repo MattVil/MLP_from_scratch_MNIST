@@ -13,9 +13,9 @@
 #define __SIZE_INT 4
 
 
-#define ETA 1
+#define ETA 0.2
 
-#define NB_LAYOR 3
+#define NB_LAYOR 4
 
 #define NB_NEURON_INPUT 784
 #define NB_NEURON_HIDDEN 25

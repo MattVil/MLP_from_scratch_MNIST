@@ -5,7 +5,7 @@
 
 #define ETA 0.2
 
-#define NB_LAYOR 6
+#define NB_LAYOR 4
 
 #define NB_NEURON_INPUT 784
 #define NB_NEURON_HIDDEN 25
