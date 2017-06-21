@@ -74,12 +74,16 @@ double train_network(Network* network, Image* img);
 void put_img_in_input(Network* network, Image* img);
 void put_array_in_input(Network* network, uchar* array);
 void compute_output(Network* network);
+double compute_error(Network* network, Image img);
+void backpropagation(Network* network);
 double calcul_error(Network* network, Image img);
 double* convert_label(Image img);
 int convert_result(Network network);
 double test_for_data(Network* network, Image img);
 
+IplImage* image_to_IplImage(Image img);
 void draw_reclangle(IplImage* img);
 IplImage* extract_square(IplImage* img);
 uchar* image_to_array(IplImage* img);
 Image* array_to_imgNetwork(uchar* tab);
+IplImage* binarisation(IplImage* img);

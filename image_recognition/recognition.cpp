@@ -33,21 +33,28 @@ int main() {
         //training
         printf("\nTraining ....");
         printf("\n");
-        int i, j;
-        for(i=0; i<60000; i++){
+        cvNamedWindow("Entrainement", CV_WINDOW_AUTOSIZE);
+        int i, j, note;
+        for(i=0; i<10000; i++){
             Image img;
+            IplImage* training = cvCreateImage(cvSize(28, 28), IPL_DEPTH_8U ,1);
+            training = image_to_IplImage(img);
+            cvShowImage("Entrainement", training);
+            cvReleaseImage(&training);
+
             read_input_number(i, &img);
 
             double error = train_network(&network, &img);
-            
+            note = cvWaitKey(1);
         }
         printf(" Done !\n");
+        cvDestroyWindow("Entrainement");
 
         //camera and image features
         char key;
         IplImage *image;
         CvCapture *capture;
-        capture = cvCaptureFromCAM(1);
+        capture = cvCaptureFromCAM(0);
   
         if (!capture) {
             printf("Ouverture du flux vidéo impossible !\n");
@@ -68,7 +75,7 @@ int main() {
                   
             draw_reclangle(image);
 
-            IplImage* resized = extract_square(image);
+            IplImage* resized = binarisation(extract_square(image));
 
             uchar* array = image_to_array(resized);
 
@@ -95,6 +102,22 @@ int main() {
         return 0;
 }
 
+IplImage* image_to_IplImage(Image img){
+    
+    int i, j, k = 0;
+
+    IplImage* result = cvCreateImage(cvSize(28, 28), IPL_DEPTH_8U ,1);
+
+    for(i=0; i<__SIZE_IMAGE; i++){
+        for(j=0; j<__SIZE_IMAGE; j++){
+            ((uchar *)(result->imageData + i*result->widthStep))[j] = img.imgbuf[k];
+            k++;
+        }
+    }
+
+    return result;
+}
+
 IplImage* extract_square(IplImage* img){
     IplImage* img_center = cvCloneImage(img);
     IplImage* center_gray;
@@ -110,13 +133,28 @@ IplImage* extract_square(IplImage* img){
 
     cvResize(center_gray, resized);
 
-    cvShowImage("Center", resized);
+    //cvShowImage("Center", resized);
 
     cvReleaseImage(&img_center);
     cvReleaseImage(&center_gray);
 
     return resized;
 }
+
+IplImage* binarisation(IplImage* img){
+    IplImage* dest;
+
+    dest = cvCloneImage(img);
+    cvAdaptiveThreshold(img, dest, 255);
+
+    IplImage* resized = cvCreateImage(cvSize(100, 100), IPL_DEPTH_8U ,1);
+    cvResize(dest, resized);
+
+    cvShowImage("Center", resized);
+
+    return dest;
+}
+
 
 void draw_reclangle(IplImage* img){
 
@@ -127,11 +165,6 @@ void draw_reclangle(IplImage* img){
 
     cvRectangle(img, topLeft, buttomRight, CV_RGB(255, 0, 0), 2);
 
-    for(i=topLeft.x; i<buttomRight.x +1; i++){
-        for(j=topLeft.y; j<buttomRight.y +1; j++){
-
-        }
-    }
 }
 
 uchar* image_to_array(IplImage* img){
@@ -146,10 +179,8 @@ uchar* image_to_array(IplImage* img){
         for(j=0; j<width; j++){
             //tab[k] = CV_IMAGE_ELEM(img, int, i, j);
             CvScalar intensity = cvGet2D(img, i, j);
-            if(abs(intensity.val[0] -255) < 150)
-                tab[k] = 0;
-            else
-                tab[k] = abs(intensity.val[0] -255);
+            tab[k] = abs(intensity.val[0] -255);
+            //tab[k] = intensity.val[0];
             printf("%d ", tab[k]);
         }
         printf("\n");
@@ -280,68 +311,16 @@ Network build_neural_network(){
     return network;
 }
 
-/*
-This function print the weight matrix of the neural network
-*/
-void print_network_weight(Network network){
-    int k, i, j;
-    for(k=0; k<NB_LAYOR-1; k++){
-        printf("\n---------------------------------------------------------------\n");
-        printf("Weight matrix n°%d : %dx%d\n", k, network.tab_weight_matrix[k].size_in, network.tab_weight_matrix[k].size_out);
-        printf("---------------------------------------------------------------\n");
-
-        for(i=0; i<network.tab_weight_matrix[k].size_in; i++){
-            for(j=0; j<network.tab_weight_matrix[k].size_out; j++){
-                printf("%.2f ", network.tab_weight_matrix[k].weight[i][j]);
-            }
-            printf("\n");
-        }
-        printf("\n\n");
-    }
-}
 
 
-/*
-This function print a selected weight matrix
-*/
-void print_weight_matrix(Network network, int num_matrix){
-    
-    if(num_matrix>=0 && num_matrix<NB_LAYOR){
-        int i, j;
-        printf("\n---------------------------------------------------------------\n");
-        printf("Weight matrix n°%d : %dx%d\n", num_matrix, network.tab_weight_matrix[num_matrix].size_in, network.tab_weight_matrix[num_matrix].size_out);
-        printf("---------------------------------------------------------------\n");
-
-        for(i=0; i<network.tab_weight_matrix[num_matrix].size_in; i++){
-            for(j=0; j<network.tab_weight_matrix[num_matrix].size_out; j++){
-                printf("%.2f ", network.tab_weight_matrix[num_matrix].weight[i][j]);
-            }
-            printf("\n");
-        }
-        printf("\n\n");
-    }
-}
-
-/*
-This function print the value of all the neurons in a layor
-*/
-void print_layor(Network network, int num_layor){
-
-    if(num_layor<=NB_LAYOR){
-        int i;
-        printf("\nLayor n°%d\n", num_layor); 
-        for(i=0; i<network.tab_layor[num_layor].nb_neuron; i++){
-            printf(" - %f", network.tab_layor[num_layor].tab_neuron[i].value);
-        }
-        printf(" -\n");
-    }
-}
 
 double train_network(Network* network, Image* img){
 
     put_img_in_input(network, img);
     compute_output(network);
-    double error = calcul_error(network, *img);
+    //double error = calcul_error(network, *img);
+    double error = compute_error(network, *img);
+    backpropagation(network);
     return error;
 }
 /*
@@ -353,15 +332,6 @@ void put_img_in_input(Network* network, Image* img){
         //we put each pixels normalized on the input layor 
         network->tab_layor[0].tab_neuron[i].potential = img->imgbuf[i]/255.0;
         network->tab_layor[0].tab_neuron[i].value = img->imgbuf[i]/255.0;
-    }
-}
-
-void put_array_in_input(Network* network, uchar* array){
-     int i;
-    for(i=0; i<NB_NEURON_INPUT; i++){
-        //we put each pixels normalized on the input layor 
-        network->tab_layor[0].tab_neuron[i].potential = array[i]/255.0;
-        network->tab_layor[0].tab_neuron[i].value = array[i]/255.0;
     }
 }
 
@@ -395,6 +365,10 @@ void compute_output(Network* network){
     }
 }
 
+
+/*
+This function calcul the error and backpropagate it 
+*/
 double calcul_error(Network* network, Image img){
 
     double* expected_result = convert_label(img);
@@ -457,6 +431,92 @@ double calcul_error(Network* network, Image img){
 
 
 /*
+## OLD NOT USED ##
+Version 2 of the fonction calcul_error with a earlier propagation of the error
+*/
+double compute_error(Network* network, Image img){
+
+    double* expected_result = convert_label(img);
+    double neuron_value = 0;
+    double error = 0;
+    double summe_error = 0;
+
+    int i, j;
+
+    //calcul of the error of each neuron of the output layor
+    for(i=0; i<NB_NEURON_OUTPUT; i++){
+        //calcul of the error
+        neuron_value = network->tab_layor[NB_LAYOR-1].tab_neuron[i].value;
+        error = expected_result[i] - neuron_value;
+        summe_error += error;
+        network->tab_layor[NB_LAYOR-1].tab_neuron[i].error_average = error;
+
+        //calcul of the error signal
+        network->tab_layor[NB_LAYOR-1].tab_neuron[i].error_signal = neuron_value * (1 - neuron_value) * error;
+    }
+
+    double error_signal = 0;
+    double summe = 0;
+
+    //propagation of the error to the layor n-1
+    for(i=0; i<NB_NEURON_HIDDEN; i++){
+        summe = 0;
+        for(j=0; j<NB_NEURON_OUTPUT; j++){
+            summe += network->tab_layor[NB_LAYOR-1].tab_neuron[j].error_signal * network->tab_weight_matrix[NB_LAYOR-2].weight[i][j];
+        }
+        network->tab_layor[NB_LAYOR-2].tab_neuron[i].error_average = summe;
+    }
+
+    return abs(summe_error);
+}
+
+/*
+This function backpropagate the error to switch the weight matrix
+*/
+void backpropagation(Network* network){
+
+    int i, j, k;
+
+    double previous_weight; 
+    double in_signal; 
+    double error_signal;
+    double neuron_value;
+    double summe = 0;
+
+    //for each layor, beginning at the end
+    for(k=NB_LAYOR-2; k>=0; k--){
+
+        //we calcul the new weight matrix
+        for(i=0; i<network->tab_weight_matrix[k].size_in; i++){
+            for(j=0; j<network->tab_weight_matrix[k].size_out; j++){
+                previous_weight = network->tab_weight_matrix[k].weight[i][j];
+                in_signal = network->tab_layor[k].tab_neuron[i].value;
+                error_signal = network->tab_layor[k+1].tab_neuron[j].error_signal;
+
+                network->tab_weight_matrix[k].weight[i][j] = previous_weight + (ETA * in_signal * error_signal);
+            }
+        }
+
+        //calcul of the error signal
+        for(i=0; i<network->tab_layor[k].nb_neuron; i++){
+            neuron_value = network->tab_layor[k].tab_neuron[i].value;
+            network->tab_layor[k].tab_neuron[i].error_signal = neuron_value * (1 - neuron_value) * network->tab_layor[k].tab_neuron[i].error_average;
+        }
+
+        //propagation of the error
+        if(k>0){ //if it's not the firdt layor
+            for(i=0; i<network->tab_layor[k-1].nb_neuron; i++){
+                summe = 0;
+                for(j=0; j<network->tab_layor[k].nb_neuron; j++){
+                    summe += network->tab_layor[k].tab_neuron[j].error_signal * network->tab_weight_matrix[k-1].weight[i][j];
+                }
+                network->tab_layor[k-1].tab_neuron[i].error_average = summe;
+            }
+        }
+    }
+}
+
+/*
 This function convert the label of the image on a table of expected result for the network
 */
 double* convert_label(Image img){
@@ -516,6 +576,76 @@ double test_for_data(Network* network, Image img){
     }
 
     return summe_error;
+}
+
+/*
+This function print the weight matrix of the neural network
+*/
+void print_network_weight(Network network){
+    int k, i, j;
+    for(k=0; k<NB_LAYOR-1; k++){
+        printf("\n---------------------------------------------------------------\n");
+        printf("Weight matrix n°%d : %dx%d\n", k, network.tab_weight_matrix[k].size_in, network.tab_weight_matrix[k].size_out);
+        printf("---------------------------------------------------------------\n");
+
+        for(i=0; i<network.tab_weight_matrix[k].size_in; i++){
+            for(j=0; j<network.tab_weight_matrix[k].size_out; j++){
+                printf("%.2f ", network.tab_weight_matrix[k].weight[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n\n");
+    }
+}
+
+
+/*
+This function print a selected weight matrix
+*/
+void print_weight_matrix(Network network, int num_matrix){
+    
+    if(num_matrix>=0 && num_matrix<NB_LAYOR){
+        int i, j;
+        printf("\n---------------------------------------------------------------\n");
+        printf("Weight matrix n°%d : %dx%d\n", num_matrix, network.tab_weight_matrix[num_matrix].size_in, network.tab_weight_matrix[num_matrix].size_out);
+        printf("---------------------------------------------------------------\n");
+
+        for(i=0; i<network.tab_weight_matrix[num_matrix].size_in; i++){
+            for(j=0; j<network.tab_weight_matrix[num_matrix].size_out; j++){
+                printf("%.2f ", network.tab_weight_matrix[num_matrix].weight[i][j]);
+            }
+            printf("\n");
+        }
+        printf("\n\n");
+    }
+}
+
+/*
+This function print the value of all the neurons in a layor
+*/
+void print_layor(Network network, int num_layor){
+
+    if(num_layor<=NB_LAYOR){
+        int i;
+        printf("\nLayor n°%d\n", num_layor); 
+        for(i=0; i<network.tab_layor[num_layor].nb_neuron; i++){
+            printf(" - %f", network.tab_layor[num_layor].tab_neuron[i].value);
+        }
+        printf(" -\n");
+    }
+}
+
+void print_neuron(Neuron neuron){
+    printf("Potential: %f\tSignal: %f\tError:%f\tError signal:%f\n", neuron.potential, neuron.value, neuron.error_average, neuron.error_signal);
+}
+
+void put_array_in_input(Network* network, uchar* array){
+     int i;
+    for(i=0; i<NB_NEURON_INPUT; i++){
+        //we put each pixels normalized on the input layor 
+        network->tab_layor[0].tab_neuron[i].potential = array[i]/255.0;
+        network->tab_layor[0].tab_neuron[i].value = array[i]/255.0;
+    }
 }
 
 void endianness() {
