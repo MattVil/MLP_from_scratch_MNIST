@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
 	printf("\n");
 	
 	int i, j;
-	for(i=0; i<10000; i++){
+	for(i=0; i<1000; i++){
 		Image img;
 		read_input_number(i, &img);
 		double summe = 0;

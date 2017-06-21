@@ -118,7 +118,9 @@ double train_network(Network* network, Image* img){
 
 	put_img_in_input(network, img);
 	compute_output(network);
-	double error = calcul_error(network, *img);
+	//double error = calcul_error(network, *img);
+	double error = compute_error(network, *img);
+	backpropagation(network);
 	return error;
 }
 /*
@@ -163,6 +165,10 @@ void compute_output(Network* network){
 	}
 }
 
+
+/*
+This function calcul the error and backpropagate it 
+*/
 double calcul_error(Network* network, Image img){
 
 	double* expected_result = convert_label(img);
@@ -223,6 +229,92 @@ double calcul_error(Network* network, Image img){
 	return summe_error*summe_error;
 }
 
+
+/*
+## OLD NOT USED ##
+Version 2 of the fonction calcul_error with a earlier propagation of the error
+*/
+double compute_error(Network* network, Image img){
+
+	double* expected_result = convert_label(img);
+	double neuron_value = 0;
+	double error = 0;
+	double summe_error = 0;
+
+	int i, j;
+
+	//calcul of the error of each neuron of the output layor
+	for(i=0; i<NB_NEURON_OUTPUT; i++){
+		//calcul of the error
+		neuron_value = network->tab_layor[NB_LAYOR-1].tab_neuron[i].value;
+		error = expected_result[i] - neuron_value;
+		summe_error += error;
+		network->tab_layor[NB_LAYOR-1].tab_neuron[i].error_average = error;
+
+		//calcul of the error signal
+		network->tab_layor[NB_LAYOR-1].tab_neuron[i].error_signal = neuron_value * (1 - neuron_value) * error;
+	}
+
+	double error_signal = 0;
+	double summe = 0;
+
+	//propagation of the error to the layor n-1
+	for(i=0; i<NB_NEURON_HIDDEN; i++){
+		summe = 0;
+		for(j=0; j<NB_NEURON_OUTPUT; j++){
+			summe += network->tab_layor[NB_LAYOR-1].tab_neuron[j].error_signal * network->tab_weight_matrix[NB_LAYOR-2].weight[i][j];
+		}
+		network->tab_layor[NB_LAYOR-2].tab_neuron[i].error_average = summe;
+	}
+
+	return abs(summe_error);
+}
+
+/*
+This function backpropagate the error to switch the weight matrix
+*/
+void backpropagation(Network* network){
+
+	int i, j, k;
+
+	double previous_weight; 
+	double in_signal; 
+	double error_signal;
+	double neuron_value;
+	double summe = 0;
+
+	//for each layor, beginning at the end
+	for(k=NB_LAYOR-2; k>=0; k--){
+
+		//we calcul the new weight matrix
+		for(i=0; i<network->tab_weight_matrix[k].size_in; i++){
+			for(j=0; j<network->tab_weight_matrix[k].size_out; j++){
+				previous_weight = network->tab_weight_matrix[k].weight[i][j];
+				in_signal = network->tab_layor[k].tab_neuron[i].value;
+				error_signal = network->tab_layor[k+1].tab_neuron[j].error_signal;
+
+				network->tab_weight_matrix[k].weight[i][j] = previous_weight + (ETA * in_signal * error_signal);
+			}
+		}
+
+		//calcul of the error signal
+		for(i=0; i<network->tab_layor[k].nb_neuron; i++){
+			neuron_value = network->tab_layor[k].tab_neuron[i].value;
+			network->tab_layor[k].tab_neuron[i].error_signal = neuron_value * (1 - neuron_value) * network->tab_layor[k].tab_neuron[i].error_average;
+		}
+
+		//propagation of the error
+		if(k>0){ //if it's not the firdt layor
+			for(i=0; i<network->tab_layor[k-1].nb_neuron; i++){
+				summe = 0;
+				for(j=0; j<network->tab_layor[k].nb_neuron; j++){
+					summe += network->tab_layor[k].tab_neuron[j].error_signal * network->tab_weight_matrix[k-1].weight[i][j];
+				}
+				network->tab_layor[k-1].tab_neuron[i].error_average = summe;
+			}
+		}
+	}
+}
 
 /*
 This function convert the label of the image on a table of expected result for the network

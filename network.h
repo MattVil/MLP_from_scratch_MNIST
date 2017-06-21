@@ -5,7 +5,7 @@
 
 #define ETA 0.2
 
-#define NB_LAYOR 4
+#define NB_LAYOR 5
 
 #define NB_NEURON_INPUT 784
 #define NB_NEURON_HIDDEN 25
@@ -50,6 +50,8 @@ double train_network(Network* network, Image* img);
 void put_img_in_input(Network* network, Image* img);
 void compute_output(Network* network);
 double calcul_error(Network* network, Image img);
+double compute_error(Network* network, Image img);
+void backpropagation(Network* network);
 double* convert_label(Image img);
 int convert_result(Network network);
 double test_for_data(Network* network, Image img);
