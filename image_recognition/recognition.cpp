@@ -21,7 +21,10 @@
  
 int fd1,fd2, ft1, ft2;
  
-int main() {       
+int main() { 
+
+        CvFont font;     
+        cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX, 0.5, 0.5, 0, 2, 18);
 
         //training file
         int nb_img;
@@ -35,14 +38,19 @@ int main() {
         printf("\n");
         cvNamedWindow("Entrainement", CV_WINDOW_AUTOSIZE);
         int i, j, note;
-        for(i=0; i<10000; i++){
+        for(i=0; i<60000; i++){
             Image img;
             IplImage* training = cvCreateImage(cvSize(28, 28), IPL_DEPTH_8U ,1);
+            IplImage* resized = cvCreateImage(cvSize(200, 200), IPL_DEPTH_8U ,1);
             training = image_to_IplImage(img);
-            cvShowImage("Entrainement", training);
-            cvReleaseImage(&training);
+
+            cvResize(training, resized);
 
             read_input_number(i, &img);
+
+            cvShowImage("Entrainement", resized);
+            cvReleaseImage(&training);
+            cvReleaseImage(&resized);
 
             double error = train_network(&network, &img);
             note = cvWaitKey(1);
@@ -54,7 +62,7 @@ int main() {
         char key;
         IplImage *image;
         CvCapture *capture;
-        capture = cvCaptureFromCAM(0);
+        capture = cvCaptureFromCAM(1);
   
         if (!capture) {
             printf("Ouverture du flux vidéo impossible !\n");
@@ -82,9 +90,14 @@ int main() {
             put_array_in_input(&network, array);
             compute_output(&network);
 
-            cvShowImage( "Camera", image);
-
             int network_value = convert_result(network);
+
+            char buf[10];
+            sprintf(buf, "%d : %.2f", network_value, network.tab_layor[NB_LAYOR-1].tab_neuron[network_value].value * 100);
+
+            cvPutText(image, buf, cvPoint(25, 50), &font, CV_RGB(255, 0, 0));
+
+            cvShowImage( "Camera", image);
 
             printf("\nResult proposed by the network : %d\t", network_value);
             printf("at %.2f%%\n", network.tab_layor[NB_LAYOR-1].tab_neuron[network_value].value * 100);
@@ -142,12 +155,20 @@ IplImage* extract_square(IplImage* img){
 }
 
 IplImage* binarisation(IplImage* img){
-    IplImage* dest;
+    IplImage* dest = cvCreateImage(cvSize(28, 28), IPL_DEPTH_8U ,1);
+    
+    int i, j;
+    for(i=0; i<__SIZE_IMAGE; i++){
+        for(j=0; j<__SIZE_IMAGE; j++){
+            CvScalar intensity =  cvGet2D(img, i, j);
+            if(intensity.val[0] > 150)
+                ((uchar *)(dest->imageData + i*dest->widthStep))[j] = 255;
+            else
+                ((uchar *)(dest->imageData + i*dest->widthStep))[j] = 0;
+        }
+    }
 
-    dest = cvCloneImage(img);
-    cvAdaptiveThreshold(img, dest, 255);
-
-    IplImage* resized = cvCreateImage(cvSize(100, 100), IPL_DEPTH_8U ,1);
+    IplImage* resized = cvCreateImage(cvSize(200, 200), IPL_DEPTH_8U ,1);
     cvResize(dest, resized);
 
     cvShowImage("Center", resized);
@@ -768,6 +789,11 @@ void read_input_number(int pos,Image *ret){ /*read_one image, at position pos in
     offset = 2*4;
     offset+= pos;  /* one MNIST label is one bytes, we have to skip pos bytes before the good one */
     pread(fd2, &(ret->label), 1, offset); /*read the image*/
+
+    for(i=0; i<28*28; i++){
+        if(ret->imgbuf[i] > 5)
+            ret->imgbuf[i] = 255;
+    }
 }
 
 void read_input_number_test(int pos,Image *ret){ /*read_one image, at position pos in the input file*/

@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
 
 	//file to test the resistance of the network
 	FILE* performance = NULL;
-	performance = fopen("./test/performanceTrainMax.txt", "w");
+	performance = fopen("./test/performance6x25.txt", "w");
 	if(performance == NULL)
 		printf("ERROR : Can not open/create performanceTrainMax.txt\n");
 
@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
 		
 		gettimeofday(&tvBegin, NULL);
 		int i, j, z;
-		for(z=0; z<1; z++){
+		for(z=0; z<5; z++){
 			for(i=0; i<60000; i++){
 				Image img;
 				read_input_number(i, &img);
@@ -72,7 +72,7 @@ int main(int argc, char const *argv[])
 
 	
 
-		int good_result = 0;
+		int good_result = 0, bad_result = 0;
 
 		for(j=0; j<ECHANTILLON; j++){
 			int nb = rand()%(10000-1) +1;
@@ -88,7 +88,9 @@ int main(int argc, char const *argv[])
 			int network_value = convert_result(network);
 
 			if(network_value == img2.label)
-				good_result ++;
+				good_result++;
+			else
+				bad_result++;
 
 			//printf("Network : %d\t", network_value);
 			//printf("at %.2f%%\n", network.tab_layor[NB_LAYOR-1].tab_neuron[network_value].value * 100);
@@ -98,7 +100,8 @@ int main(int argc, char const *argv[])
 		//printf("\n---------------------------------------------------------------\n");
 		moyenne += ((double)good_result/ECHANTILLON)*100.0;
 
-		fprintf(performance, "%f,%f\n", ((double)good_result/ECHANTILLON)*100.0, timeResult);
+		fprintf(file, "%f\n", ((double)bad_result/ECHANTILLON)*100);
+		//fprintf(performance, "%f,%f\n", ((double)good_result/ECHANTILLON)*100.0, timeResult);
 	}
 
 	moyenne = moyenne/NB_TEST;

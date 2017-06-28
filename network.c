@@ -372,7 +372,8 @@ double test_for_data(Network* network, Image img){
 		//calcul of the error
 		double neuron_value = network->tab_layor[NB_LAYOR-1].tab_neuron[i].value;
 		double error = expected_result[i] - neuron_value;
-		summe_error += error;
+		double error_signal = neuron_value * (1 - neuron_value) * error;
+		summe_error += error_signal;
 	}
 
 	return summe_error;

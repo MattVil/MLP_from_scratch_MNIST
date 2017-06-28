@@ -15,9 +15,11 @@ int main(int argc, char const *argv[])
 
 	//file to save the error
 	FILE* file = NULL;
-	file = fopen("./test/error2.txt", "w");
-	if(file == NULL)
-		printf("ERROR : Can not open/create error_evolution.txt\n");
+	FILE* file2 = NULL;
+	FILE* file3 = NULL;
+	file = fopen("./test/reussite.txt", "w");
+	file2 = fopen("./test/echec.txt", "w");
+	file3 = fopen("./test/error.txt", "w");
 	srand(time(NULL));
 
 	Network network = build_neural_network();
@@ -27,24 +29,38 @@ int main(int argc, char const *argv[])
 	printf("                   Training ....");
 	printf("\n");
 	
-	int i, j;
-	for(i=0; i<1000; i++){
-		Image img;
-		read_input_number(i, &img);
-		double summe = 0;
+	double summe;
+	int good_result, bad_result;
 
-		double e = train_network(&network, &img);
+	int i, j, k;
+	for(k=0; k<5; k++){
+		for(i=0; i<60000; i++){
+			Image img;
+			read_input_number(i, &img);
+			summe = 0;
+			good_result = 0;
+			bad_result = 0;
 
-		for(j=0; j<10; j++){
-			int nb = rand()%(10000-5000) +5000;
-			Image img2;
-			read_input_number_test(nb, &img2);
-			double error = test_for_data(&network, img2);
+			double e = train_network(&network, &img);
 
-			summe+=error;
+			for(j=0; j<100; j++){
+				int nb = rand()%(10000-1) +1;
+				Image img2;
+				read_input_number_test(nb, &img2);
+				double error = test_for_data(&network, img2);
+
+				if(convert_result(network) == img2.label)
+					good_result ++;
+				else
+					bad_result ++;
+
+				summe+=error;
+			}
+			fprintf(file, "%d\n", good_result);
+			fprintf(file2, "%d\n", bad_result);
+			fprintf(file3, "%f\n", abs(summe)/100.0);
+			
 		}
-		fprintf(file, "%d %f\n", i, (summe/10)*(summe/10));
-		
 	}
 	printf(" Done !\n");
 	printf("\n---------------------------------------------------------------\n");
